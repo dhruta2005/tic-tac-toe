@@ -26,13 +26,14 @@ document.addEventListener('DOMContentLoaded', () => {
         e.target.textContent = currentPlayer;
 
         if (checkWin()) {
-            statusText.textContent = `Player ${currentPlayer} Wins!`;
+            statusText.textContent = currentPlayer === 'X' ? "Friend Wins!" : "Dhruta Wins!";
+            drawWinningLine();
             disableBoard();
         } else if (board.every(cell => cell !== '')) {
             statusText.textContent = "It's a Draw!";
         } else {
             currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
-            statusText.textContent = `Player ${currentPlayer}'s Turn`;
+            statusText.textContent = currentPlayer === 'X' ? "Friend's Turn" : "Dhruta's Turn";
         }
     }
 
@@ -44,6 +45,34 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function drawWinningLine() {
+        const winningCombination = winningCombinations.find(combination => {
+            return combination.every(index => board[index] === currentPlayer);
+        });
+
+        if (winningCombination) {
+            const [a, b, c] = winningCombination;
+            const cellA = document.querySelector(`.cell[data-index="${a}"]`);
+            const cellB = document.querySelector(`.cell[data-index="${b}"]`);
+            const cellC = document.querySelector(`.cell[data-index="${c}"]`);
+
+            const line = document.createElement('div');
+            line.classList.add('winning-line');
+            document.body.appendChild(line);
+
+            const rectA = cellA.getBoundingClientRect();
+            const rectC = cellC.getBoundingClientRect();
+
+            const angle = Math.atan2(rectC.top - rectA.top, rectC.left - rectA.left);
+            const length = Math.sqrt(Math.pow(rectC.left - rectA.left, 2) + Math.pow(rectC.top - rectA.top, 2));
+
+            line.style.width = `${length}px`;
+            line.style.transform = `rotate(${angle}rad)`;
+            line.style.top = `${rectA.top + rectA.height / 2}px`;
+            line.style.left = `${rectA.left + rectA.width / 2}px`;
+        }
+    }
+
     function disableBoard() {
         cells.forEach(cell => cell.removeEventListener('click', handleClick));
     }
@@ -52,9 +81,12 @@ document.addEventListener('DOMContentLoaded', () => {
         board = Array(9).fill('');
         cells.forEach(cell => {
             cell.textContent = '';
+            cell.style.backgroundColor = '#f0f0f0';
             cell.addEventListener('click', handleClick);
         });
         currentPlayer = 'X';
-        statusText.textContent = `Player ${currentPlayer}'s Turn`;
+        statusText.textContent = "Friend's Turn";
+        const line = document.querySelector('.winning-line');
+        if (line) line.remove();
     }
 });
