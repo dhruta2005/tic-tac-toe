@@ -31,3 +31,11 @@ h1 {
 .cell:hover {
     background-color: #ddd;
 }
+
+.winning-line {
+    position: absolute;
+    height: 4px;
+    background-color: red;
+    transform-origin: 0 0;
+    z-index: 1;
+}
